@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <svg-icon :icon-class="isFullscreen?'exit-fullscreen':'fullscreen'" @click="click" />
   </div>
@@ -58,3 +58,4 @@ export default {
   vertical-align: 10px;
 }
 </style>
+ -->

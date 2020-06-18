@@ -2,7 +2,6 @@
   <div class="login">
     <h1>This is an login page</h1>
     <!-- 测试组建引入 -->
-    <hello />
 
     <el-row style="margin:20px">
       <el-button @click="handler_registered()">注册接口</el-button>
@@ -16,6 +15,10 @@
 
       <el-button type="primary" @click="handler_generate_word()">扫描报告生成</el-button>
       <el-button type="primary" @click="handler_download_word()">扫描报告下载</el-button>
+      <hello />
+      <hello />
+
+      <hello />
     </el-row>
     <h1>接口返回值</h1>
     {{info}}
@@ -88,7 +91,7 @@ export default {
         threads: 200,
         module: "all",
         header: "None",
-        proxy: "127.0.0.1:8081"
+        proxy: "127.0.0.1:8080"
       };
       scanning(parms).then(res => {
         this.info = res;
@@ -143,14 +146,13 @@ export default {
         file_name: this.file_name
       };
       download_word(parms).then(res => {
-          let url = window.URL.createObjectURL(new Blob([res.data]));
-          let link = document.createElement("a");
-          link.style.display = "none";
-          link.href = url;
-          link.setAttribute("download", this.file_name); // 自定义下载文件名（如exemple.txt）
-          document.body.appendChild(link);
-          link.click();
-        
+        let url = window.URL.createObjectURL(new Blob([res.data]));
+        let link = document.createElement("a");
+        link.style.display = "none";
+        link.href = url;
+        link.setAttribute("download", this.file_name); // 自定义下载文件名（如exemple.txt）
+        document.body.appendChild(link);
+        link.click();
       });
     }
   }

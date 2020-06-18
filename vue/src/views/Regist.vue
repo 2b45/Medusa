@@ -15,7 +15,7 @@
       <el-form-item label="密码">
         <el-input v-model="registerform.userpass" class="myinput" type="password" placeholder="请输入密码" />
       </el-form-item>
-      <el-form-item label="昵称">
+      <el-form-item label="确认密码">
         <el-input v-model="registerform.userpassagain" class="myinput" type="password" placeholder="请输入密码" />
       </el-form-item>
       <el-form-item label="邮箱">

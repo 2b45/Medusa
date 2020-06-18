@@ -1,14 +1,12 @@
 <template>
   <div class="login-container">
+	<meta name='viewport' content='width=device-width , initial-scale=1.0'>
     <title>登陆-Medusa</title>
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
-      <img width="450" height="230" src="./Text.png" />
+      <img width="450" height="230" src="./cover.png" />
 
       <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
         <el-input
           ref="username"
           v-model="loginForm.username"
@@ -22,9 +20,6 @@
 
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
-          <span class="svg-container">
-            <svg-icon icon-class="password" />
-          </span>
           <el-input
             :key="passwordType"
             ref="password"
@@ -44,24 +39,12 @@
         </el-form-item>
       </el-tooltip>
 
-      <!-- <el-checkbox :checked="checked" @change="changed" >请认真阅读并同意服务条款</el-checkbox>-->
-     <el-checkbox @change="changed" @click="dialogVisible = true" v-model="checked"></el-checkbox>
-     <el-button type="text" @click="dialogVisible = true">请认真阅读并同意Medusa服务条款</el-button>
-       <el-dialog
-        title="Medusa服务条款"
-        :visible.sync="dialogVisible"
-        width="30%"
-        :before-close="handleClose">
-        <span>请使用者遵守 中华人民共和国网络安全法，勿将Medusa项目用于非授权的测试，Medusa项目开发者不负任何连带法律责任，禁止用于任何商业用途</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
-        </span>
-      </el-dialog>
+       <el-checkbox @change="changed" @click="dialogVisible = true" v-model="checked"></el-checkbox>
+	<router-link to='/Disclaimer'>请认真阅读并同意Medusa服务条款</router-link>
+
       <div>
-        <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
-      </div>
-      <div>
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleRegister">register</el-button>
+       <Mybtn :title='loginbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Test'/>
+	<Mybtn :title='regbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Test'/>
       </div>
     </el-form>
 
@@ -69,33 +52,23 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+// import { validUsername } from '@/utils/validate'
+import login from "../../api/rules.js";
+import Mybtn from "../../components/Mybtn.vue";
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
-      } else {
-        callback()
-      }
-    }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        username: 'ascotbe',
+        password: '1'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        // username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        // password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+		username: [{ required: true, trigger: 'blur'}],
+		password: [{ required: true, trigger: 'blur'}]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -104,8 +77,14 @@ export default {
       redirect: undefined,
       otherQuery: {},
       checked: false,
-      dialogVisible: false
+      dialogVisible: false,
+		btn_hover: false,
+		loginbtn:'登陆',
+		regbtn:'注册'
     }
+  },
+  components: {
+    Mybtn
   },
   watch: {
     $route: {
@@ -134,6 +113,9 @@ export default {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
     },
+	Test(){
+		this.$router.push('/Regist');
+	},
     showPwd() {
       if (this.passwordType === 'password') {
         this.passwordType = ''
@@ -145,7 +127,7 @@ export default {
       })
     },
     changed(){
-      var that=this;
+      var that = this;
       console.log(that.checked);
     },
     handleClose() {
@@ -154,27 +136,23 @@ export default {
               .catch((res)=> {console.log(res)});
     },
     handleLogin() {
-      if(this.checked==true){
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true
-          this.$store.dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-		})
+     if (this.checked === true){
+		let params = {
+			username: "ascotbe",
+			passwd: "1"
+		};
+		login(params).then(res => {
+			this.info = res;
+			this.token = res.message;
+		}); 
+		this.$router.push('/dashboard') 
 	}
     },
+	handletest() {
+		this.$router.push('/site_scan');
+	},
     handleRegister() {
-      this.$router.push('/Regist');
+		this.$router.push('/Regist');
     },
     getOtherQuery(query) {
       return Object.keys(query).reduce((acc, cur) => {
@@ -239,9 +217,9 @@ $cursor: #000;
 </style>
 
 <style lang="scss" scoped>
-$bg:#EEEED1;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg:#fff;
+$dark_gray:#ffffff;
+$light_gray:#fff;
 
 .login-container {
   min-height: 100%;
@@ -314,4 +292,3 @@ $light_gray:#eee;
   }
 }
 </style>
-
