@@ -1,7 +1,24 @@
 <template>
   <div class="login-container">
+	<meta http-equiv="Content-Type" content="text/html; charset=gb2312">
 	<meta name='viewport' content='width=device-width , initial-scale=1.0'>
-    <title>登陆-Medusa</title>
+	<title>登陆-Medusa</title>
+<!-- 	<link href="./css/style.css" rel="stylesheet" type="text/css">
+	<script src='http://cdn.staticfile.org/jquery/1.11.1/jquery.min.js' type='text/javascript'></script> 
+	<style type="text/css"></style>
+	<script src="./js/script.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		setInterval(function() {
+			var e = jQuery.Event("keydown");
+			e.keyCode = 4;
+			$('#console').trigger(e);
+			console.log(1);
+			}, 0);
+			Typer.file = 'kernel.txt';//读取的文件
+			Typer.init();
+	</script> 
+	HackType调用，怎么弄成背景是个好问题
+	-->
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
 
       <img width="450" height="230" src="./cover.png" />
@@ -43,8 +60,9 @@
 	<router-link to='/Disclaimer'>请认真阅读并同意Medusa服务条款</router-link>
 
       <div>
-       <Mybtn :title='loginbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Test'/>
-	<Mybtn :title='regbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Test'/>
+		<Mybtn :title='loginbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Register'/>
+		<Mybtn :title='regbtn' :btn_width='110' :btn_hight='40' :ClickPromise='Register'/>
+		<Mybtn :title='TTT' :btn_width='110' :btn_hight='40' :ClickPromise='Test'/>
       </div>
     </el-form>
 
@@ -80,7 +98,8 @@ export default {
       dialogVisible: false,
 		btn_hover: false,
 		loginbtn:'登陆',
-		regbtn:'注册'
+		regbtn:'注册',
+		TTT:'test'
     }
   },
   components: {
@@ -113,8 +132,11 @@ export default {
       const { key } = e
       this.capsTooltip = key && key.length === 1 && (key >= 'A' && key <= 'Z')
     },
-	Test(){
+	Register(){
 		this.$router.push('/Regist');
+	},
+	Test(){
+		this.$router.push('/repasswd.html');
 	},
     showPwd() {
       if (this.passwordType === 'password') {
