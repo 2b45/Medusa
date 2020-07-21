@@ -13,11 +13,11 @@ import base64
 import random
 import sys
 import time
+import multiprocessing
 from typing import List, Dict, Tuple, Any
 import threading
 import subprocess
-
-from config import dns_log_url, dns_log_key, debug_mode
+from config import ceye_dnslog_url, ceye_dnslog_key, debug_mode,dnslog_name
 
 #########
 # 全局变量
@@ -34,23 +34,44 @@ def IpProcess(Url: str) -> str:
     return (res.hostname)
 
 
-LoopholesList = []  # 漏洞名称列表
 
+class NumberOfLoopholes:
 
-def NumberOfLoopholes():  # 漏洞个数输出函数以及名称的函数
-    print(
-        "\033[1;40;32m[ ! ] The number of vulnerabilities scanned was:\033[0m" + "\033[1;40;36m {}             \033[0m".format(
-            len(LoopholesList)))
-    for i in LoopholesList:
-        time.sleep(0.1)  # 暂停不然瞬间刷屏
-        print("\033[1;40;35m[ ! ] {}\033[0m".format(i))
-    LoopholesList.clear()  # 清空容器这样就不会出问题了
+    def WriteVulnerabilityName(self,FileName,Medusa):#把漏洞名字写到文件中
+        self.FileName=FileName
+        if sys.platform == "win32" or sys.platform == "cygwin":
+            self.FilePath = GetRootFileLocation().Result()+ "\\Temp\\" + self.FileName + ".txt"  # 不需要输入后缀，只要名字就好
+        elif sys.platform == "linux" or sys.platform == "darwin":
+            self.FilePath = GetRootFileLocation().Result() + "/Temp/" + self.FileName + ".txt"  # 不需要输入后缀，只要名字就好
+        regular_match_results = re.search(r'存在([\w\u4e00-\u9fa5!@#$%^*()&-=+_`~/?.,<>\\|\[\]{}]*)', Medusa).group(
+            0)  # 正则匹配，匹配存在后面的所有字符串，直到换行符结束
+        with open(self.FilePath, 'a+', encoding='utf-8') as f:  # 如果filename不存在会自动创建， 'w'表示写数据，写之前会清空文件中的原有数据！
+            if regular_match_results=="存在":
+                pass
+            else:
+                f.write(regular_match_results + "\n")
+    def Result(self,FileName):  # 漏洞个数输出函数以及名称的函数
+        LoopholesList=[]#创建列表存放漏洞
+        if sys.platform == "win32" or sys.platform == "cygwin":
+            self.FilePath = GetRootFileLocation().Result() + "\\Temp\\" + FileName + ".txt"  # 不需要输入后缀，只要名字就好
+        elif sys.platform == "linux" or sys.platform == "darwin":
+            self.FilePath = GetRootFileLocation().Result() + "/Temp/" + FileName + ".txt"  # 不需要输入后缀，只要名字就好
+        try:
+            with open(self.FilePath, encoding='utf-8') as f:
+                for i in f:  # 设置头文件使用的字符类型和开头的名字
+                    LoopholesList.append(i.strip("\r\n"))#传到列表里面
+            print(
+                "\033[32m[ ! ] The number of vulnerabilities scanned was:\033[0m" + "\033[36m {}             \033[0m".format(
+                    len(LoopholesList)))
+            for i in LoopholesList:
+                time.sleep(0.1)  # 暂停不然瞬间刷屏
+                print("\033[35m[ ! ] {}\033[0m".format(i))
+            LoopholesList.clear()  # 清空容器这样就不会出问题了
+        except Exception as e:
+            ErrorLog().Write("NumberOfLoopholes(class)_Result(def)", e)
+            print("\033[32m[ ! ] The number of vulnerabilities scanned was:\033[0m" + "\033[36m {}             \033[0m".format(
+                    len(LoopholesList)))
 
-
-def BotNumberOfLoopholes():  # 机器人用的漏洞个数
-    bot_loopholes_number = len(LoopholesList)
-    LoopholesList.clear()
-    return bot_loopholes_number
 
 
 class WriteFile:  # 写入文件类
@@ -62,10 +83,16 @@ class WriteFile:  # 写入文件类
             self.FilePath = GetRootFileLocation().Result() + "/ScanResult/" + self.FileName + ".txt"  # 不需要输入后缀，只要名字就好
         with open(self.FilePath, 'a+', encoding='utf-8') as f:  # 如果filename不存在会自动创建， 'w'表示写数据，写之前会清空文件中的原有数据！
             f.write(Medusa + "\n")
-        regular_match_results = re.search(r'存在([\w\u4e00-\u9fa5!@#$%^*()&-=+_`~/?.,<>\\|\[\]{}]*)', Medusa).group(
-            0)  # 正则匹配，匹配存在后面的所有字符串，直到换行符结束
-        LoopholesList.append(regular_match_results)  # 每调用一次就往列表中写入存在漏洞的名称漏洞
-
+        NumberOfLoopholes().WriteVulnerabilityName(self.FileName,Medusa)#把扫描到的漏洞全发送到这个函数中，然后把文件名也发送过去
+    def GetFileName(self,Url):
+        try:#会无法获取到一些数据导致报错，如果报错就返回空支付串
+            scheme,url, port = UrlProcessing().result(Url)
+            if self.FileName ==None:
+                return ""
+            self.result(url,"存在")
+            return self.FileName
+        except:
+            return ""
 
 class AgentHeader:  # 使用随机头类
     def result(self, Values: str) -> str:  # 使用随机头传入传入参数
@@ -74,7 +101,7 @@ class AgentHeader:  # 使用随机头类
             if len(Values) > 11:
                 return Values
             ua = UserAgent(verify_ssl=False)
-            if self.Values.lower() == "None":  # 如果参数为空使用随机头
+            if self.Values == None:  # 如果参数为空使用随机头
                 return (ua.random)
             elif self.Values.lower() == "firefox":  # 如果是火狐字符串使用火狐头
                 return (ua.firefox)
@@ -119,7 +146,7 @@ class NmapScan:  # 扫描端口类
     def ScanPort(self) -> None:
         try:
             Nmap = nmap.PortScanner()
-            ScanResult = Nmap.scan(self.Host, self.Port, '-sV')
+            ScanResult = Nmap.scan(self.Host, self.Port, '-sS -Pn -n --open --min-hostgroup 4 --min-parallelism 1024 --host-timeout 30 -T4 -v')
             HostAddress = re.compile('{\'([\d.]+)\': {').findall(str(ScanResult['scan']))[0]  # 只能用正则取出ip的值
             for port in ScanResult['scan'][HostAddress]['tcp']:
                 Nmaps = ScanResult['scan'][HostAddress]['tcp'][port]
@@ -196,36 +223,6 @@ class NmapRead:  # 读取Nmap扫描后的数据
             return port_list
         except Exception as e:
             ErrorLog().Write("ClassCongregation_NmapRead(class)_Read(def)", e)
-
-
-class BotVulnerabilityInquire:  # 机器人数据查询
-    def __init__(self, token: str):  # 先通过id查，后面要是有用户ID 再运行的时候创建一个用户信息的表或者什么的到时候再说
-        self.token = token
-
-        self.con = sqlite3.connect(GetDatabaseFilePath().result())
-        # 获取所创建数据的游标
-        self.cur = self.con.cursor()
-
-    def Number(self) -> int:  # 用来查询存在漏洞的个数
-        self.cur.execute("select * from Medusa where timestamp =?", (self.token,))
-        values = self.cur.fetchall()
-        Number = len(values)
-        self.con.close()
-        return Number
-
-    def Inquire(self):
-        self.cur.execute("select * from Medusa where timestamp =?", (self.token,))
-        values = self.cur.fetchall()
-        result_list = []  # 存放json的返回结果列表用
-
-        for i in values:
-            json_values = {}
-            json_values["url"] = i[1]
-            json_values["name"] = i[2]
-            json_values["details"] = i[7]
-            result_list.append(json_values)
-        self.con.close()
-        return result_list
 
 
 class GithubCveApi:  # CVE写入表
@@ -371,14 +368,82 @@ class VulnerabilityDetails:  # 所有数据库写入都是用同一个类
         except Exception as e:
             ErrorLog().Write("ClassCongregation_VulnerabilityDetails(class)_Write(def)", e)
 
+class Exploit:  # 所有漏洞利用使用同一个类
+    def __init__(self, medusa, url: str, **kwargs):
+        try:
+            self.url = str(url)  # 目标域名
+            self.timestamp = str(int(time.time()))  # 获取时间戳
+            self.name = medusa['name']  # 漏洞名称
+            self.number = medusa['number']  # CVE编号
+            self.author = medusa['author']  # 插件作者
+            self.create_date = medusa['create_date']  # 插件编辑时间
+            self.algroup = medusa['algroup']  # 插件名称
+            self.rank = medusa['rank']  # 漏洞等级
+            self.disclosure = medusa['disclosure']  # 漏洞披露时间，如果不知道就写编写插件的时间
+            self.details = base64.b64encode(medusa['details'].encode(encoding="utf-8"))  # 对结果进行编码写入数据库，鬼知道数据里面有什么玩意
+            self.affects = medusa['affects']  # 漏洞组件
+            self.desc_content = medusa['desc_content']  # 漏洞描述
+            self.suggest = medusa['suggest']  # 修复建议
+            self.version = medusa['version']  # 漏洞影响的版本
+            self.uid = kwargs.get("Uid")  # 传入的用户ID
+            self.command = kwargs.get("Command")  # 传入执行的命令
+            self.sid=kwargs.get("Sid")# 传入的父表SID
+            # 如果数据库不存在的话，将会自动创建一个 数据库
+            self.con = sqlite3.connect(GetDatabaseFilePath().result())
+            # 获取所创建数据的游标
+            self.cur = self.con.cursor()
+            # 创建表
+            try:
+                # 如果设置了主键那么就导致主健值不能相同，如果相同就写入报错
+                self.cur.execute("CREATE TABLE Exploit\
+                            (ssid INTEGER PRIMARY KEY,\
+                            url TEXT NOT NULL,\
+                            name TEXT NOT NULL,\
+                            affects TEXT NOT NULL,\
+                            rank TEXT NOT NULL,\
+                            suggest TEXT NOT NULL,\
+                            desc_content TEXT NOT NULL,\
+                            details TEXT NOT NULL,\
+                            number TEXT NOT NULL,\
+                            author TEXT NOT NULL,\
+                            create_date TEXT NOT NULL,\
+                            disclosure TEXT NOT NULL,\
+                            algroup TEXT NOT NULL,\
+                            version TEXT NOT NULL,\
+                            timestamp TEXT NOT NULL,\
+                            sid TEXT NOT NULL,\
+                            command TEXT NOT NULL,\
+                            uid TEXT NOT NULL)")
+            except Exception as e:
+                ErrorLog().Write("ClassCongregation_Exploit(class)_init(def)_CREATETABLE", e)
+        except Exception as e:
+            ErrorLog().Write("ClassCongregation_Exploit(class)_init(def)", e)
+
+    def Write(self):  # 统一写入
+        try:
+            self.cur.execute("""INSERT INTO Exploit (url,name,affects,rank,suggest,desc_content,details,number,author,create_date,disclosure,algroup,version,timestamp,sid,command,uid) \
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""", (
+                self.url, self.name, self.affects, self.rank, self.suggest, self.desc_content, self.details,
+                self.number,
+                self.author, self.create_date, self.disclosure, self.algroup, self.version, self.timestamp,
+                self.sid,self.command,self.uid,))
+            # 提交
+            #GetSsid = self.cur.lastrowid
+            self.con.commit()
+            self.con.close()
+            # print(GetSsid)
+            #ScanInformation().Write(ssid=GetSsid,url=self.url,sid=self.sid,rank=self.rank,uid=self.uid,name=self.name)#调用web版数据表，写入ScanInformation关系表
+        except Exception as e:
+            ErrorLog().Write("ClassCongregation_VulnerabilityDetails(class)_Write(def)", e)
 
 class ErrorLog:  # 报错写入日志
     def __init__(self):
         global filename
+        LogDate=time.strftime("%Y-%m-%d", time.localtime())
         if sys.platform == "win32" or sys.platform == "cygwin":
-            filename = os.path.split(os.path.realpath(__file__))[0] + '\\my.log'  # 获取当前文件所在的目录，即父目录
+            filename = os.path.split(os.path.realpath(__file__))[0] + '\\Log\\'+LogDate+'.log'  # 获取当前文件所在的目录，即父目录
         elif sys.platform == "linux" or sys.platform == "darwin":
-            filename = os.path.split(os.path.realpath(__file__))[0] + '/my.log'  # 获取当前文件所在的目录，即父目录
+            filename = os.path.split(os.path.realpath(__file__))[0] + '/Log/'+LogDate+'.log'  # 获取当前文件所在的目录，即父目录
         # filename=os.path.realpath(__file__)#获取当前文件名
         log_format = '%(asctime)s - %(pathname)s[line:%(lineno)d] - %(levelname)s: %(message)s'
         logging.basicConfig(filename=filename, filemode='a', level=logging.INFO,
@@ -391,34 +456,75 @@ class ErrorLog:  # 报错写入日志
 
 class Dnslog:  # Dnslog判断
     def __init__(self):
+        #该网站是通过PHPSESSID来判断dns归属谁的所有可以随机一个这个
+        h = "abcdefghijklmnopqrstuvwxyz0123456789"
+        salt_cookie = ""
+        for i in range(26):
+            salt_cookie += random.choice(h)
+        self.headers = {
+            "Cookie": "PHPSESSID="+salt_cookie
+        }
         H = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         salt = ""
         for i in range(15):
             salt += random.choice(H)
-        self.host = str(salt + "." + dns_log_url)
+        try:
+            self.host = str(salt + "." + self.get_dnslog_url())
+        except Exception as e:
+            print("\033[31m[ ! ] Unable to get dnslog, please replace ceye! \033[0m")
+            self.host=""
+            ErrorLog().Write("ClassCongregation_Dnslog(class)_init_(def)", e)
 
     def dns_host(self) -> str:
         return str(self.host)
 
+    def get_dnslog_url(self):
+        if dnslog_name=="dnslog.cn":
+            try:
+                self.dnslog_cn=requests.get("http://www.dnslog.cn/getdomain.php",headers=self.headers,timeout=6).text
+                return self.dnslog_cn
+            except Exception as e:
+                ErrorLog().Write("ClassCongregation_Dnslog(class)_get_dns_log_url(def)", e)
+        elif dnslog_name=="ceye":
+            return ceye_dnslog_url
+
     def result(self) -> bool:
         # DNS判断后续会有更多的DNS判断，保持准确性
-        return self.ceye_dns()
+        if dnslog_name=="dnslog.cn":
+            return self.dnslog_cn_dns()
+        elif dnslog_name=="ceye":
+            return self.ceye_dns()
 
     def ceye_dns(self) -> bool:
         try:
             # status = requests.post('http://log.ascotbe.com/api/validate', timeout=2,data=data)
             # code=status.status_code
             # if code == 200:
-            status = requests.get("http://api.ceye.io/v1/records?token=" + dns_log_key + "&type=dns&filter=", timeout=6)
-            self.dns_log_text = status.text
-            if self.dns_log_text.find(self.host) != -1:  # 如果找到Key
+            status = requests.get("http://api.ceye.io/v1/records?token=" + ceye_dnslog_key + "&type=dns&filter=",timeout=6)
+            self.ceye_dnslog_text = status.text
+            if self.ceye_dnslog_text.find(self.host) != -1:  # 如果找到Key
                 return True
             else:
                 return False
-        except Exception:
-            ErrorLog().Write(self.host, "Dnslog")
+        except Exception as e:
+            ErrorLog().Write(self.host+"|| ceye_dns",e)
+
+    def dnslog_cn_dns(self) -> bool:
+        try:
+            status = requests.get("http://www.dnslog.cn/getrecords.php?t="+self.dnslog_cn,headers=self.headers,  timeout=6)
+            self.dnslog_cn_text = status.text
+            if self.dnslog_cn_text.find(self.host) != -1:  # 如果找到Key
+                return True
+            else:
+                return False
+        except Exception as e:
+            ErrorLog().Write(self.host + "|| dnslog_cn_dns", e)
+
     def dns_text(self):
-        return self.dns_log_text
+        if dnslog_name=="dnslog.cn":
+            return self.dnslog_cn_text
+        elif dnslog_name=="ceye":
+            return self.ceye_dnslog_text
 
 
 class randoms:  # 生成随机数
@@ -446,48 +552,67 @@ class Proxies:  # 代理处理函数
         else:
             return {"http": "http://{}".format(proxies_ip), "https": "https://{}".format(proxies_ip)}
 
-
-class ThreadPool:  # 线程池，所有插件都发送过来一起调用
+class ThreadPool:  # 线程池，适用于单个插件
     def __init__(self):
         self.ThreaList = []  # 存放线程列表
         self.text = 0  # 统计线程数
 
-    def Append(self, plugin, url, Values,proxies,**kwargs):
+    def Append(self, plugin,**kwargs):
+        self.text += 1
+        self.ThreaList.append(threading.Thread(target=plugin,kwargs=kwargs))
+
+    def Start(self,ThreadNumber):
+        for t in self.ThreaList:  # 开启列表中的多线程
+            t.start()
+            while True:
+                # 判断正在运行的线程数量,如果小于5则退出while循环,
+                # 进入for循环启动新的进程.否则就一直在while循环进入死循环
+                if (len(threading.enumerate()) < ThreadNumber):
+                    break
+        for p in self.ThreaList:
+            p.join()
+        self.ThreaList.clear()  # 清空列表，防止多次调用导致重复使用
+
+class ProcessPool:  # 进程池，解决pythonGIL锁问题，单核跳舞实在难受
+    def __init__(self):
+        self.ProcessList=[]#创建进程列表
+        self.CountList = []  # 用来计数判断进程数
+        self.text = 0  # 统计线程数
+
+    def Append(self, Plugin, Url, Values,proxies,**kwargs):
         self.text += 1
         ua = AgentHeader().result(Values)
         Uid=kwargs.get("Uid")
         Sid=kwargs.get("Sid")
-        self.ThreaList.append(threading.Thread(target=plugin, args=(url, ua, proxies,),kwargs={"Uid":Uid,"Sid":Sid}))
+        self.ProcessList.append(multiprocessing.Process(target=Plugin, args=(Url, ua, proxies,),kwargs={"Uid":Uid,"Sid":Sid}))
 
-    def SubdomainAppend(self, plugin, Url, SubdomainJudge):
-        self.ThreaList.append(threading.Thread(target=plugin, args=(Url, SubdomainJudge)))
+    def NmapAppend(self, Plugin, Url):
+        self.ProcessList.append(multiprocessing.Process(target=Plugin, args=(Url)))
 
-    def NmapAppend(self, plugin, Url):
-        self.ThreaList.append(threading.Thread(target=plugin, args=(Url)))
-
-    def Start(self, ThreadNumber):
+    def Start(self, ProcessNumber):
         if debug_mode:  # 如果开了debug模式就不显示进度条
-            for t in self.ThreaList:  # 开启列表中的多线程
+            for t in self.ProcessList:  # 开启列表中的多进程
                 t.start()
+                self.CountList.append(t)#发送到容器中用于判断
                 while True:
                     # 判断正在运行的线程数量,如果小于5则退出while循环,
                     # 进入for循环启动新的进程.否则就一直在while循环进入死循环
-                    if (len(threading.enumerate()) < ThreadNumber):
+                    if len([p for p in self.CountList if p.exitcode is None])<ProcessNumber:
                         break
-            for p in self.ThreaList:
+            for p in self.ProcessList:
                 p.join()
         else:  # 如果没开Debug就改成进度条形式
-            for t in tqdm(self.ThreaList, ascii=True,
-                          desc="\033[1;40;32m[ + ] Medusa scan progress bar\033[0m"):  # 开启列表中的多线程
+            for t in tqdm(self.ProcessList, ascii=True,
+                          desc="\033[32m[ + ] Medusa scan progress bar\033[0m"):  # 开启列表中的多线程
                 t.start()
                 while True:
                     # 判断正在运行的线程数量,如果小于5则退出while循环,
                     # 进入for循环启动新的进程.否则就一直在while循环进入死循环
-                    if (len(threading.enumerate()) < ThreadNumber):
+                    if len([p for p in self.CountList if p.exitcode is None]) < ProcessNumber:
                         break
-            for p in tqdm(self.ThreaList, ascii=True, desc="\033[1;40;32m[ + ] Medusa cleanup thread progress\033[0m"):
+            for p in tqdm(self.ProcessList, ascii=True, desc="\033[32m[ + ] Medusa cleanup thread progress\033[0m"):
                 p.join()
-        self.ThreaList.clear()  # 清空列表，防止多次调用导致重复使用
+        self.ProcessList.clear()  # 清空列表，防止多次调用导致重复使用
 
 
 class Prompt:  # 输出横幅，就是每个组件加载后输出的东西
@@ -497,13 +622,13 @@ class Prompt:  # 输出横幅，就是每个组件加载后输出的东西
             pass
         else:
             sizex, sizey = CommandLineWidth().getTerminalSize()
-            prompt = "\033[1;40;32m[ + ] Loading attack module: \033[0m" + "\033[1;40;35m{}\033[0m".format(self.name)
-            PromptSize = sizex - len(prompt) + 28
+            prompt = "\033[32m[ + ] Loading attack module: \033[0m" + "\033[35m{}\033[0m".format(self.name)
+            PromptSize = sizex - len(prompt) + 18#28
             FillString = ""
             for i in range(0, PromptSize):
                 FillString = FillString + " "
             sys.stdout.write("\r" + prompt + FillString)
-            time.sleep(0.2)
+            time.sleep(0.1)
             sys.stdout.flush()
 
 
@@ -611,7 +736,7 @@ class ErrorHandling:
             self.ErrorBanner(self.plugin_name, "unknown")
 
     def ErrorBanner(self, plugin_name, error):
-        print("\033[1;40;31m[ X ] {} plugin {} error\033[0m".format(plugin_name, error))
+        print("\033[31m[ X ] {} plugin {} error\033[0m".format(plugin_name, error))
 
 
 class GetRootFileLocation:  # 获取当前文件路径类
@@ -624,6 +749,25 @@ class GetRootFileLocation:  # 获取当前文件路径类
             RootFileLocation = os.path.split(os.path.realpath(__file__))[0]
             return RootFileLocation
 
+class GetToolFilePath:  # 获取TOOL文件路径类
+    def Result(self) -> str:
+        system_type = sys.platform
+        if system_type == "win32" or system_type == "cygwin":
+            ToolFileLocation = GetRootFileLocation().Result()+"\\Tool\\"
+            return ToolFileLocation
+        elif system_type == "linux" or system_type == "darwin":
+            ToolFileLocation = GetRootFileLocation().Result()+"/Tool/"
+            return ToolFileLocation
+
+class GetTempFilePath:  # 获取Temp文件路径类
+    def Result(self) -> str:
+        system_type = sys.platform
+        if system_type == "win32" or system_type == "cygwin":
+            TempFileLocation = GetRootFileLocation().Result()+"\\Temp\\"
+            return TempFileLocation
+        elif system_type == "linux" or system_type == "darwin":
+            TempFileLocation = GetRootFileLocation().Result()+"/Temp/"
+            return TempFileLocation
 
 class ExecuteChildprocess:  # 执行子进程类
     def Execute(self, command: List[str]) -> None:
@@ -689,3 +833,73 @@ class ScanInformation:#ActiveScanList的子表，单个URL相关漏洞表,写入
         except Exception as e:
             ErrorLog().Write("ClassCongregation_ScanInformation(class)_Query(def)", e)
             return None
+
+
+class SubdomainTable:  # 这是一个子域名表
+    def __init__(self,Subdomain:str,url: str, **kwargs):
+        try:
+            self.url = str(url)  # 目标域名
+            self.timestamp = str(int(time.time()))  # 获取时间戳
+            self.subdomain=Subdomain#获取的子域名
+            self.uid = kwargs.get("Uid")  # 传入的用户ID
+            self.sid=kwargs.get("Sid")# 传入的父表SID
+            # 如果数据库不存在的话，将会自动创建一个 数据库
+            self.con = sqlite3.connect(GetDatabaseFilePath().result())
+            # 获取所创建数据的游标
+            self.cur = self.con.cursor()
+            # 创建表
+            try:
+                # 如果设置了主键那么就导致主健值不能相同，如果相同就写入报错
+                self.cur.execute("CREATE TABLE Subdomain\
+                            (id INTEGER PRIMARY KEY,\
+                            url TEXT NOT NULL,\
+                            subdomain TEXT NOT NULL,\
+                            timestamp TEXT NOT NULL,\
+                            sid TEXT NOT NULL,\
+                            uid TEXT NOT NULL)")
+            except Exception as e:
+                ErrorLog().Write("ClassCongregation_SubdomainTable(class)_init(def)_CREATETABLE", e)
+        except Exception as e:
+            ErrorLog().Write("ClassCongregation_SubdomainTable(class)_init(def)", e)
+
+    def Write(self):  # 统一写入
+        try:
+            self.cur.execute("""INSERT INTO Subdomain (url,subdomain,timestamp,sid,uid) \
+            VALUES (?,?,?,?,?)""", (self.url, self.subdomain,self.timestamp,self.sid,self.uid,))
+            # 提交
+            self.con.commit()
+            self.con.close()
+        except Exception as e:
+            ErrorLog().Write("ClassCongregation_SubdomainTable(class)_Write(def)", e)
+
+class ExploitOutput:#命令执行内容处理
+    def Command(self):#子进程无法使用imput函数
+        #print("\033[32m[ + ] Please enter the command to be executed: \033[0m")
+        Command=input("\033[32m[ + ] Please enter the command to be executed: \033[0m")
+        if Command=="QuitMedusa":
+            print("\033[33m[ ! ] Command execution call has ended~ \033[0m")
+            os._exit(0)  # 直接退出整个函数
+        elif Command!=None:
+            return str(Command)
+        else:
+            print("\033[31m[ ! ] Command cannot be empty! \033[0m")
+
+    def Deserialization(self):
+        LoadExploitURL=input("\033[32m[ + ] Please enter the exploit URL to be loaded \033[0m"+"\033[31m[Prohibit adding http or https ]\033[0m"+"\033[32m: \033[0m")
+        if LoadExploitURL != None:
+            return str(LoadExploitURL)
+        else:
+            print("\033[31m[ ! ] Please refer to the following example :\033[0m"+"\033[36m 127.0.0.1:80/exp \033[0m" )
+    def OperatingSystem(self):
+        OperatingSystem=input("\033[33m[ + ] Please enter the target operating system [windows / linux]: \033[0m").lower()#转换成小写
+
+        if OperatingSystem != None and (OperatingSystem=="windows" or OperatingSystem=="linux"):
+            return str(OperatingSystem)
+        else:
+            print("\033[31m[ ! ] Please enter windows or linux! \033[0m")
+    def Banner(self,**kwargs):
+        print("\033[32m[ + ] Command sent successfully, please refer to the returned data packet\033[0m")
+        if kwargs.get("OutputData")==None:
+            print("\033[36m[ + ] Return packet：The vulnerability is command execution without echo\033[0m")
+        else:
+            print("\033[36m[ + ] Return packet：\033[0m"+kwargs.get("OutputData"))

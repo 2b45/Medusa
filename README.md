@@ -3,7 +3,7 @@
  <p align="center">
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Ascotbe-Medusa-green"></a>
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/python-3.7+-blueviolet"></a>
-    <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Version-0.83-red"></a>
+    <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Version-0.87-red"></a>
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/LICENSE-GPL-ff69b4"></a>
 	<a href="https://github.com/ascotbe/Medusa/stargazers"><img alt="Release" src="https://img.shields.io/github/stars/ascotbe/Medusa.svg"></a>
 	<a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Plugin-200+-success"></a>
@@ -41,15 +41,13 @@ http://medusa.ascotbe.com/Documentation/#/PluginDirectory
 
 ### :space_invader:Demo
 
-![demo](https://github.com/Ascotbe/Random-img/blob/master/Medusa/0.76.gif?raw=true)
+![demo](https://github.com/Ascotbe/Random-img/blob/master/Medusa/demo.gif?raw=true)
 
 
 ### :book:`Bash` Ver. instructions for use
 
 ```bash
-# Need nmap(example for ubuntu
-apt-get install nmap
-# clone project files
+# clone project files(example for ubuntu
 git clone https://github.com/Ascotbe/Medusa.git
 cd Medusa
 # Install python packages
@@ -76,21 +74,16 @@ git config --global https.proxy https://127.0.0.1:1080
 | -f   | 1        | The filename includes urls that want to scan.                              | `-u` or `-f` must exists one and only one                         |
 | -p | 1 | You need to fill in the IP of your proxy, if you have a port you need to bring the port | to use BURP as a proxy then you should pass in 127.0.0.1:8080 |
 | -m   | 1        | Scan for single module,such as: Struts2 or Apache, etc.                  | The specific content can be entered by the corresponding name in the project Modules folder. |
-| -t   | 1        | Threads usage setting, default(-t 15)                                    |                                                           None   |
-| -s   | 0        | Subdomain search by DNS and search engine                           | Mod by `Sublist3r`, IP enumerate not support.                             |
-| -se  | 0        | Contains `-s` funcitons, in addtional, enumerate by dictionary(time consuming)                     | can not use this with `-s` at the same time.                         |
-
+| -t   | 1        | Processes usage setting, default(-t 15)                                    |                                                           None   |
+|-s    |1       | Enable subdomain detection| |
+|-l    |0       | List interactive command execution plugins| This function has not been written yet|
+|-e    |1       | You need to use the vulnerability, please use -l to query| |
 
 ### :green_book:`Bot` Ver. document
 
-```bash
-# clone project files
-git clone https://github.com/Ascotbe/Medusa.git
-cd Medusa
-# Install python packages
-pip3 install -r Medusa.txt
-# Configuring look at BOT document
-https://www.ascotbe.com/Medusa
+```html
+# How to use BOT, please look at the connection
+http://medusa.ascotbe.com/EnglishDocumentation/#/Bot
 ```
 
 ### :four_leaf_clover:Updating logs
@@ -112,10 +105,6 @@ https://www.ascotbe.com/Loophole
 - If you have any problems that cannot be solved by the documentation, please submit an issue of [help]
 - If you have any good comments or ideas, please submit [idea] issue
 - QQ group：**690021184**（Secret code：**6CF2D42B629E5AA4E6C293B290798878**）
-
-### :seedling:Friend links
-
-- [零组资料库](http://www.0-sec.org)
 
 ### :palm_tree:Contributors
 

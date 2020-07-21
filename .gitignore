@@ -3,5 +3,7 @@
 **/__pycache__
 Medusa.db
 my.log
-ysoserial.jar
+Log
+ScanResult
+Temp
 marshalsec.jar

@@ -34,6 +34,8 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    'corsheaders',#跨域用的
+    'captcha',#这个是验证码
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -42,6 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',#跨域用的
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,6 +84,37 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'Medusa.db'),
     }
 }
+
+#跨域用的
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:9999',
+]
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+)
 
 
 # Password validation
@@ -122,8 +156,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 #celery
-CELERY_RESULT_BACKEND='redis://:medusa@10.211.55.3:6379/6'
-CELERY_BROKER_URL='redis://:medusa@10.211.55.3:6379/6'
+CELERY_RESULT_BACKEND='redis://:@localhost:6379/6'
+CELERY_BROKER_URL='redis://:@localhost:6379/6'
 '''
 
 CELERY_RESULT_BACKEND='redis://:password@host:port/db'
@@ -139,3 +173,21 @@ cache : 缓存
 '''
 CELERY_ACCEPT_CONTENT=['json']
 CELERY_TASK_SERIALIZER='json'
+
+
+# django_simple_captcha 验证码配置
+# 格式
+CAPTCHA_OUTPUT_FORMAT = u'%(text_field)s %(hidden_field)s %(image)s'
+# 噪点样式
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_null',  # 没有样式
+                           # 'captcha.helpers.noise_arcs', # 线
+                           # 'captcha.helpers.noise_dots', # 点
+                           )
+# 图片大小
+CAPTCHA_IMAGE_SIZE = (100, 25)
+CAPTCHA_BACKGROUND_COLOR = '#ffffff'
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.random_char_challenge'  # 图片中的文字为随机英文字母，如 mdsh
+# CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'    # 图片中的文字为数字表达式，如1+2=</span>
+
+CAPTCHA_LENGTH = 4  # 字符个数
+CAPTCHA_TIMEOUT = 1  # 超时(minutes)

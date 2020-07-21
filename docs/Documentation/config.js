@@ -14,7 +14,11 @@ let config = {
         },
 		{
             title: '插件编写', type: 'dropdown', items: [
-				{   title: '3.5(当前版本)', path: '/PocVersion/3.5/PocWriting'
+				{   title: '3.7(当前版本)', path: '/PocVersion/3.7/PocWriting'
+                },
+                {   title: '3.6', path: '/PocVersion/3.6/PocWriting'
+            },
+                {   title: '3.5', path: '/PocVersion/3.5/PocWriting'
                 },
 				{   title: '3.4', path: '/PocVersion/3.4/PocWriting'
                 },
@@ -40,11 +44,7 @@ let config = {
             title: '功能详情', path: '/FunctionDetails'
         },
         {
-            title: 'API', type: 'dropdown', items: [
-                {
-                    title: 'API 描述', path: '/API'
-                }
-            ]
+            title: 'API 描述', path: '/API'
         },
 		{
             title: '插件列表', path: '/PluginDirectory'
@@ -56,22 +56,18 @@ let config = {
                 }
             ]
         },
-		{
-            title: '更新进度', type: 'dropdown', items: [
-                {
-                    title: '更新日志', path: '/UpDataLog'
-                }
-            ]
-		
-		},
+        {
+            title: '更新日志', path: '/UpDataLog'
+        },
+
         {
             title: '其它', type: 'dropdown', items: [
                 {
                     title: '开发团队介绍', path: '/Team'
                 },
                 {
-                    title: 'FAQ', path: '/FAQ'
-                }
+                    title: '问题列表', path: '/Bug'
+                },
             ]
         }
     ],

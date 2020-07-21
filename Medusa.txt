@@ -18,3 +18,9 @@ nonebot==1.5.0
 nonebot[scheduler]==1.5.0
 typing==3.7.4.1
 docxtpl==0.9.2
+uuid==1.30
+pycryptodome==3.9.7
+PySocks==1.7.1
+django-cors-headers==3.3.0
+django-simple-captcha==0.5.12
+dubbo-py==0.2.2

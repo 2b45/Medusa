@@ -17,10 +17,13 @@
 
 - ##### Tomcat
   - `Tomcat` 未授权命令执行漏洞（CVE-2020-1938）
+- ##### Shiro
+  - `Shiro`RememberMe反序列化命令执行漏洞（CVE-2016-4437）
 
 ##### Citrix
   - `Citrix` 网关路径遍历漏洞（CVE-2019-19781）
   - `Citrix` 远程代码执行漏洞（CVE-2019-19781）
+  - `Citrix` 认证绕过漏洞（CVE-2020-8193）
 
 ##### Cms
 
@@ -237,6 +240,24 @@
   - `EuseTMS xinqing.aspx` SQL注入漏洞
   - `EuseTMS download.aspx` SQL注入漏洞
 
+- ##### ExponentCMS
+  - `ExponentCMS` 反射型XSS漏洞
+  
+- ##### ExtMail
+  - `ExtMail` SQL注入漏洞
+  
+- ##### eYou
+  - `eYou help.class.php` SQL注入漏洞
+  - `eYou list_userinfo.php` SQL注入漏洞
+  - `eYou ` SQL注入漏洞
+
+- ##### FanWe
+  - `FanWe index.php` SQL注入漏洞
+  - `FanWe goods_list.php` SQL注入漏洞
+  - `FanWe ` SQL注入漏洞
+  - `FanWe ` 登陆接口SQL注入漏洞
+
+
 - ##### FiveClib
   - `FiveClib` 任意文件下载漏洞
   - `FiveClib` 任意文件遍历漏洞
@@ -352,28 +373,16 @@
   -  `Spring`SecurityOauth2远程代码执行（CVE-2018-1260）
 
 ##### Struts2
-  - `Struts2` S2_001 远程代码执行漏洞
-  - `Struts2` S2_007 远程代码执行漏洞
-  - `Struts2` S2_012 远程代码执行漏洞
-  - `Struts2` S2_013 远程代码执行漏洞
-  - `Struts2` S2_016 远程代码执行漏洞
-  - `Struts2` S2_052 远程代码执行漏洞
-  - `Struts2` S2_053 远程代码执行漏洞
-  - `Struts2` S2_005 远程代码执行漏洞
-
-- `Struts2` S2_057 远程代码执行漏洞
-- `Struts2` S2_008_2 远程代码执行漏洞
-- `Struts2` S2_008_1 远程代码执行漏洞
-- `Struts2` S2_009 远程代码执行漏洞
-- `Struts2` S2_019 远程代码执行漏洞
-- `Struts2` S2_020 远程代码执行漏洞
-- `Struts2` S2_032 远程代码执行漏洞
-- `Struts2` S2_033 远程代码执行漏洞
-- `Struts2 ` S2_037 远程代码执行漏洞
-- `Struts2` S2_045 远程代码执行漏洞
-- `Struts2` S2_046 远程代码执行漏洞
-- `Struts2` S2_048 远程代码执行漏洞
-- `Struts2` S2_Devmode 远程代码执行漏洞
+  - `Struts2` S2-001 远程代码执行漏洞
+  - `Struts2` S2-005 远程代码执行漏洞
+  - `Struts2` S2-08 远程代码执行漏洞
+  - `Struts2` S2-09 远程代码执行漏洞
+  - `Struts2` S2-015 远程代码执行漏洞
+  - `Struts2` S2-016 远程代码执行漏洞
+  - `Struts2` S2-045 远程代码执行漏洞
+  - `Struts2` S2-046 远程代码执行漏洞
+  - `Struts2` S2-052 远程代码执行漏洞
+  - `Struts2` S2-057 远程代码执行漏洞
 
 #####  Windows
 
@@ -382,3 +391,24 @@
 ##### Liferay
 
 - `Liferay Portal `远程命令执行漏洞（CVE-2020-7961）
+
+##### Weblogic
+
+- `WebLogic` XML Decoder反序列化漏洞（CVE-2017-10271&&CVE-2017-3506)
+- `Weblogic`服务器端请求伪造漏洞（CVE-2014-4210）
+- `Weblogic`任意文件上传漏洞（CVE-2018-2894）
+- `Weblogic`WLS核心组件反序列化命令执行漏洞（CVE-2016-0638）
+- `Weblogic`T3反序列化命令执行漏洞（CVE-2016-3510）
+- `Weblogic`反序列化命令执行漏洞（CVE-2018-2628）
+- `Weblogic`反序列化命令执行漏洞（CVE-2017-3248）
+- `Weblogic`反序列化命令执行漏洞（CVE-2018-2893）
+- `Weblogic`反序列化命令执行漏洞（CVE-2019-2725）
+- `Weblogic`反序列化命令执行漏洞（CVE-2018-3191）
+- `WebLogic`远程命令执行（CVE-2019-2729）
+- `Weblogic`反序列化远程命令执行漏洞（CVE-2019-2890）
+
+##### Dubbo
+- `Dubbo` Provider默认反序列漏洞（CVE-2020-1948）
+
+##### BIG-IP
+- `BIG-IP` 远程代码执行漏洞（CVE-2020-5902）

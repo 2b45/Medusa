@@ -4,43 +4,28 @@
 
 > Ubuntu
 
-There are no special requirements for the installation method
+The `JAVA` environment needs to be installed and the `java` command can be executed in the global variables
 
 > CentOS
 
-You need to execute the `yum install sqlite*` command to install the **sqlite3.so** library
+1.The `JAVA` environment needs to be installed and the `java` command can be executed in the global variables
+
+2.You need to execute the `yum install sqlite*` command to install the **sqlite3.so** library
 
 > Mac OS
 
-There are no special requirements for the installation method
+The `JAVA` environment needs to be installed and the `java` command can be executed in the global variables
 
 ### Install Python env
 
 The current plug-in is developed under the `Python3.7.x` environment. Below` 3.7`, some functions cannot be used. If you need to use a scanner or write a plug-in, you must first install the `Python` development environment. It is recommended to use` PyCharm` + `Anaconda` as development environment.
 
-### Module install
+### Install dependencies
 
-`Medusa` dependent packages：
+The packages needed to run Medusa are executed in the root directory
 
-```
-bs4 ==0.0.1
-fake-useragent ==0.1.11
-requests ==2.22.0
-urllib3 ==1.25.3
-python-nmap ==0.6.1
-PyMySQL ==0.9.3
-IPy ==1.0
-scrapy ==1.7.3
-tqdm ==4.38.0
-dnspython ==1.16.0
-tldextract ==2.2.2
-Django==2.2.7
-Celery==4.3.0
-django_redis==4.10.0
-eventlet==0.25.1
-pyDES==2.0.1
-nonebot==1.5.0
-nonebot[scheduler]==1.5.0
+```python
+pip install -r Medusa.txt
 ```
 
 
@@ -50,14 +35,24 @@ The configuration file referred to in this section is the same file
 
 #### 0x01 DNSLOG
 
-My `DNSLOG` does not support some protocols, so please use the` DNSLOG` in http://ceye.io/ (My `DNSLOG` will be available later)
+Since the `DNSLOG` I built does not support certain protocols, there are currently two methods for detecting third-party platforms
+
+> The first method (by default)
+
+The first is the default method, no need to modify, convenient and fast
+
+> The second method
+
+Use `DNSLOG` in http://ceye.io/, this method needs to modify the configuration file
 
 ```
 #Open this file in the root directory (Medusa directory)
 vim config.py
 ```
 
-Change `dns_log_url` and` dns_log_key` to the values of your `Identifier` and` API Token` at http://ceye.io/
+Change `ceye_dnslog_url` and`ceye_dnslog_key` to the values of your `Identifier` and` API Token` at http://ceye.io/ , Then change `dnslog_name` to `ceye`
+
+**Note: **When using the script, ensure that the network is unblocked. If the vulnerability is not scanned, you may wish to see if the `DNSLOG` data exists
 
 #### 0x02 Debug mode 
 
@@ -74,11 +69,24 @@ The output content of this mode is not the progress bar and module loading conte
 
 ![debug](https://github.com/Ascotbe/Random-img/blob/master/Medusa/0.76Debug.gif?raw=true)
 
+#### 0x03 Multithreading
+
+Because the refactoring replaces the previous multi-threads with multi-processes, the for loop in a single plugin is replaced with multi-threads, so the default number of threads is **15**. If you need to modify, change the value of `thread_number` in the configuration file to The number of threads you need
+
+```
+thread_number=15 #Default number of threads
+```
+
+
+
 ## Quick start
 
 The tool is still in the testing stage. If you have any questions, please submit `issues`. Remember, this scanner is only use for authorized testing
 
 #### 0x01 Use the scanner to scan a single website
+
+Note: It is recommended to put the complete path, some plugins need to use the full path name, for example: `Struts2`
+
 ```bash
 python3 MedusaScan.py -u https://www.ascotbe.com
 ```
@@ -113,20 +121,17 @@ Next run the following command to start scanning
 python3 MedusaScan.py -f Ascotbe.txt #Your files are best placed in the same level as MedusaScan
 ```
 
-#### ~~0x03 Perform database weak password detection on the target website~~
+#### ~~0x03 Link crawling in JavaScript on the target website~~
 
-This function is commented because not very useful now, if you want to use `/Medusa/Password.txt` this is the path of your file
-```bash
-python3 MedusaScan.py -u https://www.ascotbe.com -sp /Medusa/Password.txt -su /Medusa/Username.txt 
-```
-
-#### 0x04 Link crawling in JavaScript on the target website
+This function is commented because not very useful now
 
 ```bash
 python3 MedusaScan.py -u https://www.ascotbe.com -j
 ```
 
 #### 0x04 Collect subdomains for the target website
+
+The scan result is in the `ScanResult` directory, only the domain name is supported and the **IP** form is not supported
 
 ```bash
 python3 MedusaScan.py -u https://www.ascotbe.com -s
@@ -144,7 +149,7 @@ Supported parameters：`firefox`，`ie`，`msie`，`opera`，`chrome`，`AppleWe
 
 Currently supports common browsers, 3 of which are listed below (case sensitive)
 
-```
+```bash
 python3 MedusaScan.py -u https://www.ascotbe.com -a firefox
 python3 MedusaScan.py -u https://www.ascotbe.com -a ie
 python3 MedusaScan.py -u https://www.ascotbe.com -a Gecko
@@ -152,33 +157,66 @@ python3 MedusaScan.py -u https://www.ascotbe.com -a Gecko
 
 You can also customize the `header` parameter, remember to add double quotes to the custom` header` containing `" "`, if your `header` is not compliant, it will not prompt an error
 
-```
+```bash
 python3 MedusaScan.py -u https://www.ascotbe.com -a "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.2117.157 Safari/537.36"
 ```
-
-
 
 #### 0x07 Scanning for single modules
 
 Please use the name supported by the module for the root folder. A folder name corresponds to a module, and please pay attention to capitalization. It is really incomprehensible. Please refer to [in this file](https://www.ascotbe.com/Medusa/Documentation/#/PluginDirectory) name
 
-```
+```bash
 python3 MedusaScan.py -u https://www.ascotbe.com -m Struts2
 ```
 
-#### 0x08 Threads setting
+#### 0x08 Processes setting
 
-Any function can turn on multi-threading !
+Turn on the multi-process function, the default is 15 processes, the more processes, the faster, when a plugin uses the for loop, it will start multi-threading in the process!
 
 ```bash
-python3 MedusaScan.py -u https://www.ascotbe.com -t 100 #100 threads
+python3 MedusaScan.py -u https://www.ascotbe.com -t 100 #100 processes
 ```
 
 #### 0x09 sensitive information leakage
 
 Integrated into the module, the full scan is automatically started, if you need to scan separately, you only need to enter the module name
 
+#### 0x10 Interactive command execution
 
+Call the plug-in that can perform command execution interaction, you can use the `-l` (not yet written) parameter view
+
+```bash
+python3 MedusaScan.py -u http://127.0.0.1:7001 -e CVE-2019-2729
+```
+
+After the call is successful, you need to enter the target operating system first, and then enter the executed command. If the execution is changed without echo, it will output `Return packet: The vulnerability is command execution without echo`, if not, it will be returned. Explicit execution.
+
+If you need to log out, please enter `QuitMedusa` to exit the command execution.
+
+```bash
+ascotbe@orange$ python3 MedusaScan.py -u http://127.0.0.1:7001 -e CVE-2019-2729
+
+
+
+  ___ __ __   ______   ______   __  __   ______   ________      
+ /__//_//_/\ /_____/\ /_____/\ /_/\/_/\ /_____/\ /_______/\     
+ \::\| \| \ \\::::_\/_\:::_ \ \\:\ \:\ \\::::_\/_\::: _  \ \    
+  \:.      \ \\:\/___/\\:\ \ \ \\:\ \:\ \\:\/___/\\::(_)  \ \   
+   \:.\-/\  \ \\::___\/_\:\ \ \ \\:\ \:\ \\_::._\:\\:: __  \ \  
+    \. \  \  \ \\:\____/\\:\/.:| |\:\_\:\ \ /____\:\\:.\ \  \ \ 
+     \__\/ \__\/ \_____\/ \____/_/ \_____\/ \_____\/ \__\/\__\/ 
+                                                                
+ 
+                                                                                   
+          Blog  https://www.ascotbe.com  |  v0.86    
+
+[ + ] Please enter the target operating system [windows / linux]: Windows
+[ + ] Please enter the command to be executed: echo Ayanami Rei
+[ + ] Command sent successfully, please refer to the returned data packet
+[ + ] Return packet：Ayanami Rei
+[ + ] Please enter the command to be executed: QuitMedusa
+[ ! ] Command execution call has ended~ 
+```
 
 ## Result
 

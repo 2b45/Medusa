@@ -3,7 +3,7 @@
  <p align="center">
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Ascotbe-Medusa-green"></a>
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/python-3.7+-blueviolet"></a>
-    <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Version-0.83-red"></a>
+    <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Version-0.87-red"></a>
     <a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/LICENSE-GPL-ff69b4"></a>
 	<a href="https://github.com/ascotbe/Medusa/stargazers"><img alt="Release" src="https://img.shields.io/github/stars/ascotbe/Medusa.svg"></a>
 	<a href="https://github.com/Ascotbe/Medusa"><img alt="Release" src="https://img.shields.io/badge/Plugin-200+-success"></a>
@@ -25,7 +25,7 @@
 
 ## Demo
 
-<img alt="Release" src="https://github.com/Ascotbe/Random-img/blob/master/Medusa/0.76.gif?raw=true"  >
+<img alt="Release" src="https://github.com/Ascotbe/Random-img/blob/master/Medusa/demo.gif?raw=true"  >
 
 ## 复现文档
 
@@ -48,14 +48,15 @@ python3 MedusaScan.py -u www.ascotbe.com
 
 | 命令 | 参数个数 | 作用                                                         | 备注                                                         |
 | ---- | -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| -u   | 1        | 输入单个目标url（最好使用http://或https://作为开头,并且后面别跟参数 | https://www.ascotbe.com  or https://192.168.0.1                |
+| -u   | 1        | 输入单个目标url（最好使用http:// 或 https:// 作为开头,并且后面别跟参数 | https://www.ascotbe.com  or https://192.168.0.1                |
 | -a   | 1        | 指定头文件或使用随机头                                       | 具体使用参考使用文档 |
 | -f   | 1        | 需要批量扫描目标url所在文件名字                              | -u和-f只能存在一个，并且必须存在一个                         |
 | -p   | 1        | 需要填入你代理的IP，如果有端口的话也需要带上端口             | 以使用BURP作为代理那么就该传入 127.0.0.1:8080                |
 | -m   | 1        | 针对单独的模块进行扫描比如Struts2、Apache等                  | 具体内容可以通过项目文件夹来输入                             |
-| -t   | 1        | 设置线程数，默认线程数15                                     |                                                              |
-| -s   | 0        | 通过DNS以及各大搜索引擎查找子域名                            | 从Sublist3r魔改而来,不支持IP枚举                             |
-| -se  | 0        | 包含了-s的功能，并且通过字典枚举(非常耗时                    | 和-s不能同时使用，-s和-se只能存在一个                        |
+| -t   | 1        | 设置进程数                                  |    默认进程数15                                                           |
+|-s    |1       |开启子域名探测| |
+|-l    |0       |列出可以交互的插件| 该功能暂时没写 |
+|-e    |1       |您需要使用那个漏洞，具体请使用-l查询| |
 
 ## 讨论区
 
